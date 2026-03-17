@@ -14,14 +14,16 @@
     var firstModel = modelRemains[0] || {};
 
     // 当前时间窗口（5小时）的用量
+    // 注意: usage_count 字段实际表示剩余次数，而非已用次数
     var intervalTotal = firstModel.current_interval_total_count || 0;
-    var intervalUsed = firstModel.current_interval_usage_count || 0;
-    var intervalRemaining = intervalTotal - intervalUsed;
+    var intervalRemaining = firstModel.current_interval_usage_count || 0;
+    var intervalUsed = intervalTotal - intervalRemaining;
     var usagePercent = intervalTotal > 0 ? Math.round(intervalUsed / intervalTotal * 100) : 0;
 
-    // 每周总量
+    // 每周总量（供参考）
     var weeklyTotal = firstModel.current_weekly_total_count || 0;
-    var weeklyUsed = firstModel.current_weekly_usage_count || 0;
+    var weeklyRemaining = firstModel.current_weekly_usage_count || 0;
+    var weeklyUsed = weeklyTotal - weeklyRemaining;
 
     // 剩余时间（毫秒转换为小时分钟）
     var remainsTimeMs = firstModel.remains_time || 0;
