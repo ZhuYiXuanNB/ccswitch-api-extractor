@@ -1,10 +1,19 @@
-# DeepSeek API 用量查询脚本
+# CC Switch API 用量查询脚本集合
 
-适用于 [CC Switch](https://ccswitch.com) 的DeepSeek API余额查询提取器。
+为 [CC Switch](https://ccswitch.com) 设计的API用量查询提取器集合。
 
-## 使用方法
+## 支持的模型
 
-在CC Switch中配置以下提取器代码：
+| 模型 | 提取器文件 | API文档 |
+|------|-----------|---------|
+| DeepSeek | [deepseek.js](extractors/deepseek.js) | [DeepSeek Docs](https://platform.deepseek.com/docs) |
+| MiniMax | [minimax.js](extractors/minimax.js) | [MiniMax Docs](https://platform.minimaxi.com) |
+
+## 快速开始
+
+在CC Switch中配置对应的提取器代码。
+
+### DeepSeek
 
 ```javascript
 ({
@@ -32,39 +41,51 @@
 })
 ```
 
-## 配置说明
+#### 配置说明
 
 | 变量 | 值 |
 |------|-----|
 | `{{baseUrl}}` | `https://api.deepseek.com` |
 | `{{apiKey}}` | 你的DeepSeek API Key |
 
-## 返回字段
+### MiniMax
 
-| 字段 | 说明 |
-|------|------|
-| `isValid` | 账户是否可用 |
-| `remaining` | 剩余余额 |
-| `unit` | 货币单位 (CNY) |
-| `extra` | 赠送/充值余额明细 |
-
-## API 参考
-
-- 官方文档: https://platform.deepseek.com/docs
-- 余额查询接口: `GET /user/balance`
-
-## 响应示例
-
-```json
-{
-  "is_available": true,
-  "balance_infos": [
-    {
-      "currency": "CNY",
-      "total_balance": "27.66",
-      "granted_balance": "0.00",
-      "topped_up_balance": "27.66"
+```javascript
+({
+  request: {
+    url: "{{baseUrl}}/v1/api/openplatform/coding_plan/remains",
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer {{apiKey}}",
+      "Content-Type": "application/json"
     }
-  ]
-}
+  },
+  extractor: function(response) {
+    var isValid = response.code === 0;
+    var data = response.data || {};
+    var remaining = parseFloat(data.balance) || 0;
+
+    return {
+      isValid: isValid,
+      invalidMessage: isValid ? "" : (response.msg || "请求失败"),
+      remaining: remaining,
+      unit: "USD",
+      extra: data.plan_name ? "套餐: " + data.plan_name : ""
+    };
+  }
+})
 ```
+
+#### MiniMax 配置说明
+
+| 变量 | 值 |
+|------|-----|
+| `{{baseUrl}}` | `https://www.minimaxi.com` |
+| `{{apiKey}}` | 你的MiniMax API Key |
+
+## 贡献
+
+欢迎提交PR添加更多模型的提取器！请确保：
+1. 每个模型一个独立的提取器文件
+2. 提取器代码符合CC Switch的格式要求
+3. 更新本README的支持模型列表
