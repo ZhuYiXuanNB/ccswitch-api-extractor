@@ -11,14 +11,14 @@
 
 ## 快速开始
 
-在CC Switch中配置对应的提取器代码。
+复制对应代码到 CC Switch 配置用量查询面自定义脚本
 
 ### DeepSeek
 
 ```javascript
 ({
   request: {
-    url: "{{baseUrl}}/user/balance",
+    url: "https://api.deepseek.com/user/balance",
     method: "GET",
     headers: {
       "Accept": "application/json",
@@ -26,6 +26,7 @@
     }
   },
   extractor: function(response) {
+    // DeepSeek 返回格式 : { is_available: true, balance_infos: [{ currency, total_balance, granted_balance, topped_up_balance }] }
     var isValid = response.is_available === true;
     var balanceInfo = response.balance_infos && response.balance_infos[0];
     var remaining = balanceInfo ? parseFloat(balanceInfo.total_balance) : 0;
@@ -35,7 +36,7 @@
       isValid: isValid,
       remaining: remaining,
       unit: unit,
-      extra: balanceInfo ? "赠送:" + balanceInfo.granted_balance + " | 充值:" + balanceInfo.topped_up_balance : ""
+      extra: balanceInfo ? " 赠送 :" + balanceInfo.granted_balance + " | 充值 :" + balanceInfo.topped_up_balance : ""
     };
   }
 })
@@ -60,23 +61,25 @@
     }
   },
   extractor: function(response) {
+    // MiniMax 返回格式: { base_resp: { status_code: 0, status_msg: "success" }, model_remains: [...] }
     var baseResp = response.base_resp || {};
     var isValid = baseResp.status_code === 0;
     var modelRemains = response.model_remains || [];
     var firstModel = modelRemains[0] || {};
 
-    // 注意: usage_count 字段实际表示剩余次数
+    // 当前时间窗口（5小时）的用量
+    // 注意: usage_count 字段实际表示剩余次数，而非已用次数
     var intervalTotal = firstModel.current_interval_total_count || 0;
     var intervalRemaining = firstModel.current_interval_usage_count || 0;
     var intervalUsed = intervalTotal - intervalRemaining;
     var usagePercent = intervalTotal > 0 ? Math.round(intervalUsed / intervalTotal * 100) : 0;
 
-    // 每周总量
+    // 每周总量（供参考）
     var weeklyTotal = firstModel.current_weekly_total_count || 0;
     var weeklyRemaining = firstModel.current_weekly_usage_count || 0;
     var weeklyUsed = weeklyTotal - weeklyRemaining;
 
-    // 剩余时间
+    // 剩余时间（毫秒转换为小时分钟）
     var remainsTimeMs = firstModel.remains_time || 0;
     var hours = Math.floor(remainsTimeMs / (1000 * 60 * 60));
     var minutes = Math.floor((remainsTimeMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -93,6 +96,7 @@
     };
   }
 })
+
 ```
 
 #### MiniMax 配置说明
