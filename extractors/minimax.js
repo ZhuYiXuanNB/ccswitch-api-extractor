@@ -16,21 +16,27 @@
     // 当前时间窗口（5小时）的用量
     var intervalTotal = firstModel.current_interval_total_count || 0;
     var intervalUsed = firstModel.current_interval_usage_count || 0;
-    var remaining = intervalTotal - intervalUsed;
+    var intervalRemaining = intervalTotal - intervalUsed;
     var usagePercent = intervalTotal > 0 ? Math.round(intervalUsed / intervalTotal * 100) : 0;
 
-    // 每周总量（供参考）
+    // 每周总量
     var weeklyTotal = firstModel.current_weekly_total_count || 0;
     var weeklyUsed = firstModel.current_weekly_usage_count || 0;
+
+    // 剩余时间（毫秒转换为小时分钟）
+    var remainsTimeMs = firstModel.remains_time || 0;
+    var hours = Math.floor(remainsTimeMs / (1000 * 60 * 60));
+    var minutes = Math.floor((remainsTimeMs % (1000 * 60 * 60)) / (1000 * 60));
+    var remainTimeStr = hours > 0 ? hours + "小时" + minutes + "分钟" : minutes + "分钟";
 
     var modelNames = modelRemains.map(function(m) { return m.model_name; }).join(", ");
 
     return {
       isValid: isValid,
       invalidMessage: isValid ? "" : (baseResp.status_msg || "请求失败"),
-      remaining: remaining,
+      remaining: intervalRemaining,
       unit: "次",
-      extra: "模型: " + modelNames + " | 本周: " + weeklyUsed + "/" + weeklyTotal + " | 窗口: " + usagePercent + "%"
+      extra: "模型: " + modelNames + " | 重置: " + remainTimeStr + " | 本周: " + weeklyUsed + "/" + weeklyTotal + " | 窗口: " + usagePercent + "%"
     };
   }
 })
