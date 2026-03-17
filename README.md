@@ -64,15 +64,18 @@
     var isValid = baseResp.status_code === 0;
     var modelRemains = response.model_remains || [];
     var firstModel = modelRemains[0] || {};
-    var remainsTime = firstModel.remains_time || 0;
+    var weeklyTotal = firstModel.current_weekly_total_count || 0;
+    var weeklyUsed = firstModel.current_weekly_usage_count || 0;
+    var remaining = weeklyTotal - weeklyUsed;
     var modelNames = modelRemains.map(function(m) { return m.model_name; }).join(", ");
+    var usagePercent = weeklyTotal > 0 ? Math.round(weeklyUsed / weeklyTotal * 100) : 0;
 
     return {
       isValid: isValid,
       invalidMessage: isValid ? "" : (baseResp.status_msg || "请求失败"),
-      remaining: remainsTime,
-      unit: "ms",
-      extra: "模型: " + modelNames
+      remaining: remaining,
+      unit: "次",
+      extra: "模型: " + modelNames + " | 已用: " + weeklyUsed + "/" + weeklyTotal + " (" + usagePercent + "%)"
     };
   }
 })
