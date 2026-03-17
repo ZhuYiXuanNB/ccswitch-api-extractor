@@ -1,10 +1,9 @@
 ({
   request: {
-    url: "{{baseUrl}}/v1/api/openplatform/coding_plan/remains",
-    method: "POST",
+    url: "https://www.minimaxi.com/v1/api/openplatform/coding_plan/remains",
+    method: "GET",
     headers: {
-      "Authorization": "Bearer {{apiKey}}",
-      "Content-Type": "application/json"
+      "Authorization": "Bearer {{apiKey}}"
     }
   },
   extractor: function(response) {
