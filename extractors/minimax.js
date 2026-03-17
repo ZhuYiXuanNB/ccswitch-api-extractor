@@ -13,20 +13,24 @@
     var modelRemains = response.model_remains || [];
     var firstModel = modelRemains[0] || {};
 
-    // 每周总次数 - 每周已用次数 = 剩余次数
+    // 当前时间窗口（5小时）的用量
+    var intervalTotal = firstModel.current_interval_total_count || 0;
+    var intervalUsed = firstModel.current_interval_usage_count || 0;
+    var remaining = intervalTotal - intervalUsed;
+    var usagePercent = intervalTotal > 0 ? Math.round(intervalUsed / intervalTotal * 100) : 0;
+
+    // 每周总量（供参考）
     var weeklyTotal = firstModel.current_weekly_total_count || 0;
     var weeklyUsed = firstModel.current_weekly_usage_count || 0;
-    var remaining = weeklyTotal - weeklyUsed;
 
     var modelNames = modelRemains.map(function(m) { return m.model_name; }).join(", ");
-    var usagePercent = weeklyTotal > 0 ? Math.round(weeklyUsed / weeklyTotal * 100) : 0;
 
     return {
       isValid: isValid,
       invalidMessage: isValid ? "" : (baseResp.status_msg || "请求失败"),
       remaining: remaining,
       unit: "次",
-      extra: "模型: " + modelNames + " | 已用: " + weeklyUsed + "/" + weeklyTotal + " (" + usagePercent + "%)"
+      extra: "模型: " + modelNames + " | 本周: " + weeklyUsed + "/" + weeklyTotal + " | 窗口: " + usagePercent + "%"
     };
   }
 })
