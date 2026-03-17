@@ -1,6 +1,6 @@
 # CC Switch API 用量查询脚本集合
 
-为 [CC Switch](https://ccswitch.com) 设计的API用量查询提取器集合。
+为 [CC Switch](https://github.com/farion1231/cc-switch) 设计的API用量查询提取器集合。
 
 ## 支持的模型
 
@@ -41,13 +41,6 @@
   }
 })
 ```
-
-#### 配置说明
-
-| 变量 | 值 |
-|------|-----|
-| `{{baseUrl}}` | `https://api.deepseek.com` |
-| `{{apiKey}}` | 你的DeepSeek API Key |
 
 ### MiniMax
 
@@ -98,12 +91,6 @@
 })
 
 ```
-
-#### MiniMax 配置说明
-
-| 变量 | 值 |
-|------|-----|
-| `{{apiKey}}` | 你的MiniMax API Key |
 
 > 注意: MiniMax 采用动态速率限制，5小时时间窗口用完后会重置。
 
